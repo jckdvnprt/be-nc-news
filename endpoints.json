@@ -3,13 +3,17 @@
     "description": "serves up a json representation of all the available endpoints of the api"
   },
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+ 
     "queries": [],
+    "description": "serves an array of all topics",
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
+    
   },
   "GET /api/articles": {
+    
+    
     "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
@@ -25,5 +29,6 @@
         }
       ]
     }
+    
   }
 }
