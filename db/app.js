@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
-const { getTopics, getArticle } = require("./controllers/controller");
+const {
+  getTopics,
+  getArticle,
+  getAllArticles,
+} = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
 
 app.get("/api/", (req, res, next) => {
@@ -8,10 +12,16 @@ app.get("/api/", (req, res, next) => {
 });
 
 app.get("/api/articles/:article_id", getArticle);
+app.get("/api/articles/", getAllArticles);
 app.get("/api/topics/", getTopics);
 
-app.use((req, res) => {
-  res.status(404).send({ msg: "404! Not Found!" });
+app.all("*", (req, res) => {
+  res.status(404).send({ msg: "Not Found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ msg: "500! Internal Server Error" });
 });
 
 module.exports = app;
