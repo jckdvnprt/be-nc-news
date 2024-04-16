@@ -4,6 +4,7 @@ const {
   getTopics,
   getArticle,
   getAllArticles,
+  getComments,
 } = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
 
@@ -11,6 +12,7 @@ app.get("/api/", (req, res, next) => {
   res.status(200).send({ endpoints });
 });
 
+app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles/", getAllArticles);
 app.get("/api/topics/", getTopics);
@@ -20,7 +22,7 @@ app.all("*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(err);
   res.status(500).send({ msg: "500! Internal Server Error" });
 });
 

@@ -52,6 +52,7 @@ describe("GET /api", () => {
 
         Object.values(apiEndpoints).forEach((endpoint) => {
           expect(endpoint.description).toEqual(expect.any(String));
+
           if (endpoint.hasOwnProperty("queries")) {
             expect(endpoint.queries).toEqual(expect.any(Array));
           }
@@ -83,6 +84,21 @@ describe("GET /api", () => {
                 }),
               ])
             );
+          } else if (
+            endpoint.description.includes("Gets all comments from an article")
+          ) {
+            expect(endpoint.exampleResponse).toEqual(
+              expect.arrayContaining([
+                expect.objectContaining({
+                  comment_id: expect.any(Number),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  article_id: expect.any(Number),
+                }),
+              ])
+            );
           }
         });
       });
@@ -97,7 +113,7 @@ describe("GET /api/articles/:article_id", () => {
       .get(`/api/articles/${testArticleId}`)
       .then((response) => {
         const article = response.body;
-        expect(response.status).toBe(200);
+        expect(200);
         expect(article).toMatchObject({
           article_id: testArticleId,
           title: expect.any(String),
@@ -121,46 +137,99 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  describe("Get /api/articles", () => {
-    test("Get ALL ARTICLES sorted by created by", () => {
+  describe("Get /api/articles/:article_id/comments", () => {
+    test("Get comments by article id", () => {
+      const testArticleId = 1;
       return request(app)
-        .get("/api/articles/")
+        .get(`/api/articles/${testArticleId}/comments`)
         .then((response) => {
-          const retrievedArticles = response.body;
-          expect(response.status).toBe(200);
-          expect(new Date(retrievedArticles[0].created_at)).toEqual(
-            new Date("2020-11-03T09:12:00.000Z")
-          );
-          for (let i = 1; i < retrievedArticles.length; i++) {
+          expect(200);
+          expect(Array.isArray(response.body)).toBe(true);
+          response.body.forEach((comment) => {
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: testArticleId,
+            });
+          });
+        });
+    });
+    test("Comments should be sorted by newest first based on the created_at property", () => {
+      const testArticleId = 6;
+      return request(app)
+        .get(`/api/articles/${testArticleId}/comments`)
+        .then((response) => {
+          const retrievedComments = response.body;
+
+          expect(200);
+          for (let i = 1; i < retrievedComments.length; i++) {
             expect(
-              new Date(retrievedArticles[i].created_at).getTime()
-            ).toBeLessThanOrEqual(
-              new Date(retrievedArticles[i - 1].created_at).getTime()
+              retrievedComments[i].created_at.toBeLessThanOrEqual(
+                retrievedComments[i - 1].created_at
+              )
             );
           }
         });
-    });
-    test("Articles should have a comment count property", () => {
-      return request(app)
-        .get("/api/articles/")
-        .then((response) => {
-          const retrievedArticles = response.body;
-          retrievedArticles.forEach((article) => {
-            expect(article).toHaveProperty("comment_count");
+      test("Get comments for non-existent article id", () => {
+        const nonExistentArticleId = 13;
+        return request(app)
+          .get(`/api/articles/${nonExistentArticleId}/comments`)
+          .then((response) => {
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({ error: "Article not found" });
           });
-        });
+      });
     });
 
-    test("Articles should NOT have a 'body' property once returned", () => {
-      return request(app)
-        .get("/api/articles/")
-        .then((response) => {
-          const retrievedArticles = response.body;
-          expect(response.status).toBe(200);
-          retrievedArticles.forEach((article) => {
-            expect(article.body).toBe(undefined);
+    describe("Get /api/articles", () => {
+      test("Get ALL ARTICLES sorted by created by", () => {
+        return request(app)
+          .get("/api/articles/")
+          .then((response) => {
+            const retrievedArticles = response.body;
+            expect(200);
+            expect(new Date(retrievedArticles[0].created_at)).toEqual(
+              new Date("2020-11-03T09:12:00.000Z")
+            );
+            for (let i = 1; i < retrievedArticles.length; i++) {
+              expect(
+                new Date(retrievedArticles[i].created_at).getTime()
+              ).toBeLessThanOrEqual(
+                new Date(retrievedArticles[i - 1].created_at).getTime()
+              );
+            }
           });
-        });
+      });
+      test("Articles should have a comment count property", () => {
+        return request(app)
+          .get("/api/articles/")
+          .then((response) => {
+            const retrievedArticles = response.body;
+            retrievedArticles.forEach((article) => {
+              expect(article).toHaveProperty("comment_count");
+              expect(article).toHaveProperty("votes");
+              expect(article).toHaveProperty("topic");
+              expect(article).toHaveProperty("created_at");
+              expect(article).toHaveProperty("article_img_url");
+              expect(article).toHaveProperty("article_id");
+            });
+          });
+      });
+
+      test("Articles should NOT have a 'body' property once returned", () => {
+        return request(app)
+          .get("/api/articles/")
+          .then((response) => {
+            const retrievedArticles = response.body;
+            expect(response.status).toBe(200);
+            retrievedArticles.forEach((article) => {
+              expect(article.body).toBe(undefined);
+            });
+          });
+      });
     });
   });
 });

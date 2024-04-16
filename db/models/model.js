@@ -53,8 +53,25 @@ function fetchArticleFromDatabase(articleId) {
   });
 }
 
+function fetchCommentsFromDatabase(articleId) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_id=$1 ORDER BY created_at DESC;",
+      [articleId]
+    ).then((queryResult) => {
+      if (queryResult.rows.length > 0) {
+        resolve(queryResult.rows);
+      } else {
+        console.log("No article found with articleId:", articleId);
+        resolve(null);
+      }
+    });
+  });
+}
+
 module.exports = {
   fetchTopicsFromDatabase,
   fetchArticleFromDatabase,
   fetchAllArticlesFromDataBase,
+  fetchCommentsFromDatabase,
 };
