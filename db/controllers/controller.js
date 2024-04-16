@@ -2,32 +2,32 @@ const db = require("../connection");
 const {
   fetchArticleFromDatabase,
   fetchTopicsFromDatabase,
+  fetchAllArticlesFromDataBase,
 } = require("../models/model");
 
 const getTopics = (req, res, next) => {
-  fetchTopicsFromDatabase()
-    .then((topics) => {
-      res.status(200).send(topics);
-    })
-    .catch((error) => {
-      res.status(500).send({ msg: "Internal Server Error" });
-    });
+  fetchTopicsFromDatabase().then((topics) => {
+    res.status(200).send(topics);
+  });
+};
+
+const getAllArticles = (req, res) => {
+  fetchAllArticlesFromDataBase().then((articles) => {
+    res.status(200).send(articles);
+  });
 };
 
 const getArticle = (req, res) => {
   const articleId = req.params.article_id;
-  fetchArticleFromDatabase(articleId)
-    .then((article) => {
-      if (article) {
-        res.status(200).send({ article });
-      } else {
-        res.status(404).send({ msg: "Article not found" });
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching article:", error);
-      res.status(500).send({ msg: "Internal Server Error" });
-    });
+  console.log(articleId);
+  fetchArticleFromDatabase(articleId).then((article) => {
+    if (article) {
+      const articleToSend = article[0];
+      res.status(200).send(articleToSend);
+    } else {
+      res.status(404).send({ msg: "Article not found" });
+    }
+  });
 };
 
-module.exports = { getTopics, getArticle };
+module.exports = { getTopics, getArticle, getAllArticles };

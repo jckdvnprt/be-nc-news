@@ -37,7 +37,7 @@ describe("Bad URL pathways", () => {
       .get("/api/topicsssss/")
       .then((response) => {
         expect(response.status).toBe(404);
-        expect(response.body).toEqual({ msg: "404! Not Found!" });
+        expect(response.body).toEqual({ msg: "Not Found" });
       });
   });
 });
@@ -96,16 +96,18 @@ describe("GET /api/articles/:article_id", () => {
     return request(app)
       .get(`/api/articles/${testArticleId}`)
       .then((response) => {
-        const article = response.body.article[0];
+        const article = response.body;
         expect(response.status).toBe(200);
-        expect(article).toHaveProperty("article_id");
-        expect(article).toHaveProperty("title");
-        expect(article).toHaveProperty("topic");
-        expect(article).toHaveProperty("author");
-        expect(article).toHaveProperty("body");
-        expect(article).toHaveProperty("created_at");
-        expect(article).toHaveProperty("votes");
-        expect(article).toHaveProperty("article_img_url");
+        expect(article).toMatchObject({
+          article_id: testArticleId,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+        });
       });
   });
 
@@ -117,5 +119,48 @@ describe("GET /api/articles/:article_id", () => {
         expect(response.status).toBe(404);
         expect(response.body).toEqual({ msg: "Article not found" });
       });
+  });
+
+  describe("Get /api/articles", () => {
+    test("Get ALL ARTICLES sorted by created by", () => {
+      return request(app)
+        .get("/api/articles/")
+        .then((response) => {
+          const retrievedArticles = response.body;
+          expect(response.status).toBe(200);
+          expect(new Date(retrievedArticles[0].created_at)).toEqual(
+            new Date("2020-11-03T09:12:00.000Z")
+          );
+          for (let i = 1; i < retrievedArticles.length; i++) {
+            expect(
+              new Date(retrievedArticles[i].created_at).getTime()
+            ).toBeLessThanOrEqual(
+              new Date(retrievedArticles[i - 1].created_at).getTime()
+            );
+          }
+        });
+    });
+    test("Articles should have a comment count property", () => {
+      return request(app)
+        .get("/api/articles/")
+        .then((response) => {
+          const retrievedArticles = response.body;
+          retrievedArticles.forEach((article) => {
+            expect(article).toHaveProperty("comment_count");
+          });
+        });
+    });
+
+    test("Articles should NOT have a 'body' property once returned", () => {
+      return request(app)
+        .get("/api/articles/")
+        .then((response) => {
+          const retrievedArticles = response.body;
+          expect(response.status).toBe(200);
+          retrievedArticles.forEach((article) => {
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
   });
 });
