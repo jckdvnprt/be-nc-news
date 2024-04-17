@@ -207,169 +207,193 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400 - should respond with 400 Bad Request for missing username", () => {
-    const testArticleId = 1;
-    const newComment = {
-      body: "This is a comment without a username, how very sad.",
-    };
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("201 - should respond with 201 Created and the newly posted comment, ignoring unnecessary properties on the request body", () => {
+      const testArticleId = 1;
+      const newComment = {
+        username: "rogersop",
+        body: "This is my very fancy test comment.",
+        pointlessComment: "This is a pointless comment",
+      };
 
-    return request(app)
-      .post(`/api/articles/${testArticleId}/comments`)
-      .send(newComment)
-      .then((response) => {
-        expect(400);
-        expect(response.body).toEqual({
-          msg: "Username and body are required",
-        });
-      });
-  });
-
-  test("400 - should respond with 400 Bad Request for missing body", () => {
-    const testArticleId = 1;
-    const newComment = {
-      username: "lurker",
-    };
-    return request(app)
-      .post(`/api/articles/${testArticleId}/comments`)
-      .send(newComment)
-      .then((response) => {
-        expect(400);
-        expect(response.body).toEqual({
-          msg: "Username and body are required",
-        });
-      });
-  });
-
-  test("400 - should respond with 400 Bad Request for invalid username", () => {
-    const testArticleId = 1;
-    const newComment = {
-      username: "jckdvnprt",
-      body: "This is my very fancy test comment.",
-    };
-
-    return request(app)
-      .post(`/api/articles/${testArticleId}/comments`)
-      .send(newComment)
-      .then((response) => {
-        expect(400);
-        expect(response.body).toEqual({
-          msg: "Invalid username",
-        });
-      });
-  });
-
-  test("404 - should respond with 404 Not Found for non-existing article ID", () => {
-    const invalidArticleId = 123456789;
-    const newComment = {
-      username: "lurker",
-      body: "Test comment that won't be posted anyway because of the error! Oops!",
-    };
-
-    return request(app)
-      .post(`/api/articles/${invalidArticleId}/comments`)
-      .send(newComment)
-      .then((response) => {
-        expect(404);
-        expect(response.body).toEqual({ msg: "Article not found" });
-      });
-  });
-
-  test("500 - should respond with 500 Internal Server Error for database error", () => {
-    const invalidArticleId = "invalid-article-id";
-    const newComment = {
-      username: "rogersop",
-      body: "This comment won't be posted because of the invalid article ID *sad face emoji*.",
-    };
-
-    return request(app)
-      .post(`/api/articles/${invalidArticleId}/comments`)
-      .send(newComment)
-      .then((response) => {
-        expect(500);
-        expect(response.body).toEqual({ msg: "Internal Server Error" });
-      });
-  });
-});
-
-describe("PATCH /api/articles/:article_id", () => {
-  test("200 - responds with the updated article when adding new votes", () => {
-    const articleId = 1;
-    const existingVotes = 100;
-    const newVotes = 200;
-    return request(app)
-      .patch(`/api/articles/${articleId}`)
-      .send({ inc_votes: newVotes })
-      .expect(200)
-      .then((response) => {
-        const updatedArticle = response.body;
-        expect(updatedArticle).toHaveProperty("article_id", articleId);
-        expect(updatedArticle).toHaveProperty(
-          "votes",
-          newVotes + existingVotes
-        );
-      });
-  });
-
-  describe("PATCH /api/articles/:article_id", () => {
-    test("200 - responds with the updated article when taking votes away", () => {
-      const articleId = 1;
-      const existingVotes = 100;
-      const newVotes = -99;
       return request(app)
-        .patch(`/api/articles/${articleId}`)
-        .send({ inc_votes: newVotes })
-        .expect(200)
+        .post(`/api/articles/${testArticleId}/comments`)
+        .send(newComment)
         .then((response) => {
-          const updatedArticle = response.body;
-          expect(updatedArticle).toHaveProperty("article_id", articleId);
-          expect(updatedArticle).toHaveProperty(
-            "votes",
-            newVotes + existingVotes
-          );
+          expect(201);
+          expect(response.body).toHaveProperty("comment_id");
+          expect(response.body).toHaveProperty("votes");
+          expect(response.body).toHaveProperty("created_at");
+          expect(response.body).toHaveProperty("author", newComment.username);
+          expect(response.body).toHaveProperty("body", newComment.body);
+          expect(response.body).toHaveProperty("article_id", testArticleId);
         });
     });
 
-    test("400 - responds with error for non-integer inc_votes", () => {
-      const articleId = 1;
-      const existingVotes = 100;
-      const newVotes = "invalid_type";
+    test("400 - should respond with 400 Bad Request for missing username", () => {
+      const testArticleId = 1;
+      const newComment = {
+        body: "This is a comment without a username, how very sad.",
+      };
+
       return request(app)
-        .patch(`/api/articles/${articleId}`)
-        .send({ inc_votes: newVotes })
-        .expect(400)
+        .post(`/api/articles/${testArticleId}/comments`)
+        .send(newComment)
         .then((response) => {
+          expect(400);
           expect(response.body).toEqual({
-            msg: "inc_votes must be an integer",
+            msg: "Username and body are required",
           });
         });
     });
 
-    test("400 - responds with error for empty request body", () => {
-      const articleId = 1;
-      const existingVotes = 100;
-      const newVotes = 200;
+    test("400 - should respond with 400 Bad Request for missing body", () => {
+      const testArticleId = 1;
+      const newComment = {
+        username: "lurker",
+      };
       return request(app)
-        .patch(`/api/articles/${articleId}`)
-        .send({})
-        .expect(400)
+        .post(`/api/articles/${testArticleId}/comments`)
+        .send(newComment)
         .then((response) => {
+          expect(400);
           expect(response.body).toEqual({
-            msg: "Request body cannot be empty",
+            msg: "Username and body are required",
           });
         });
     });
 
-    test("404 - responds with error when article is not found", () => {
-      const nonExistingArticleId = 23123;
-      const existingVotes = 100;
-      const newVotes = 200;
+    test("400 - should respond with 400 Bad Request for invalid username", () => {
+      const testArticleId = 1;
+      const newComment = {
+        username: "jckdvnprt",
+        body: "This is my very fancy test comment.",
+      };
+
       return request(app)
-        .patch(`/api/articles/${nonExistingArticleId}`)
-        .send({ inc_votes: newVotes })
-        .expect(404)
+        .post(`/api/articles/${testArticleId}/comments`)
+        .send(newComment)
         .then((response) => {
+          expect(400);
+          expect(response.body).toEqual({
+            msg: "Invalid username",
+          });
+        });
+    });
+
+    test("404 - should respond with 404 Not Found for non-existing article ID", () => {
+      const invalidArticleId = 123456789;
+      const newComment = {
+        username: "lurker",
+        body: "Test comment that won't be posted anyway because of the error! Oops!",
+      };
+
+      return request(app)
+        .post(`/api/articles/${invalidArticleId}/comments`)
+        .send(newComment)
+        .then((response) => {
+          expect(404);
           expect(response.body).toEqual({ msg: "Article not found" });
         });
+    });
+
+    test("400 - should respond with 400 Bad Request for database error", () => {
+      const invalidArticleId = "invalid-article-id";
+      const newComment = {
+        username: "rogersop",
+        body: "This comment won't be posted because of the invalid article ID *sad face emoji*.",
+      };
+
+      return request(app)
+        .post(`/api/articles/${invalidArticleId}/comments`)
+        .send(newComment)
+        .then((response) => {
+          expect(response.status).toBe(400);
+          expect(response.body).toEqual({ msg: "Invalid article ID" });
+        });
+    });
+
+    describe("PATCH /api/articles/:article_id", () => {
+      test("200 - responds with the updated article when adding new votes", () => {
+        const articleId = 1;
+        const existingVotes = 100;
+        const newVotes = 200;
+        return request(app)
+          .patch(`/api/articles/${articleId}`)
+          .send({ inc_votes: newVotes })
+          .expect(200)
+          .then((response) => {
+            const updatedArticle = response.body;
+            expect(updatedArticle).toHaveProperty("article_id", articleId);
+            expect(updatedArticle).toHaveProperty(
+              "votes",
+              newVotes + existingVotes
+            );
+          });
+      });
+
+      describe("PATCH /api/articles/:article_id", () => {
+        test("200 - responds with the updated article when taking votes away", () => {
+          const articleId = 1;
+          const existingVotes = 100;
+          const newVotes = -99;
+          return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send({ inc_votes: newVotes })
+            .expect(200)
+            .then((response) => {
+              const updatedArticle = response.body;
+              expect(updatedArticle).toHaveProperty("article_id", articleId);
+              expect(updatedArticle).toHaveProperty(
+                "votes",
+                newVotes + existingVotes
+              );
+            });
+        });
+
+        test("400 - responds with error for non-integer inc_votes", () => {
+          const articleId = 1;
+          const existingVotes = 100;
+          const newVotes = "invalid_type";
+          return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send({ inc_votes: newVotes })
+            .expect(400)
+            .then((response) => {
+              expect(response.body).toEqual({
+                msg: "inc_votes must be an integer",
+              });
+            });
+        });
+
+        test("400 - responds with error for empty request body", () => {
+          const articleId = 1;
+          const existingVotes = 100;
+          const newVotes = 200;
+          return request(app)
+            .patch(`/api/articles/${articleId}`)
+            .send({})
+            .expect(400)
+            .then((response) => {
+              expect(response.body).toEqual({
+                msg: "Request body cannot be empty",
+              });
+            });
+        });
+
+        test("404 - responds with error when article is not found", () => {
+          const nonExistingArticleId = 23123;
+          const existingVotes = 100;
+          const newVotes = 200;
+          return request(app)
+            .patch(`/api/articles/${nonExistingArticleId}`)
+            .send({ inc_votes: newVotes })
+            .expect(404)
+            .then((response) => {
+              expect(response.body).toEqual({ msg: "Article not found" });
+            });
+        });
+      });
     });
   });
 });

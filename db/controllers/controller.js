@@ -5,7 +5,6 @@ const {
   fetchAllArticlesFromDataBase,
   fetchCommentsFromDatabase,
   postCommentToDatabase,
-  checkArticleExists,
   checkUsernameExists,
   updateArticleVotes,
 } = require("../models/model");
@@ -39,32 +38,28 @@ const getTopics = (req, res, next) => {
 };
 
 const postComment = (req, res, next) => {
-  const { article_id } = req.params;
-  const { username, body } = req.body;
-  checkArticleExists(article_id)
-    .then((exists) => {
-      if (!exists) {
+  return fetchArticleFromDatabase(req.params.article_id)
+    .then((article) => {
+      if (!article) {
         return Promise.reject({ status: 404, msg: "Article not found" });
       }
-      if (!username || !body) {
+      if (!req.body.username || !req.body.body) {
         return Promise.reject({
           status: 400,
           msg: "Username and body are required",
         });
       }
-      return checkUsernameExists(username);
+      return checkUsernameExists(req.body.username);
     })
     .then((usernameExists) => {
       if (!usernameExists) {
         return Promise.reject({ status: 400, msg: "Invalid username" });
       }
-      return fetchArticleFromDatabase(article_id);
-    })
-    .then((article) => {
-      if (!article) {
-        return res.status(404).send({ msg: "Article not found" });
-      }
-      return postCommentToDatabase(article_id, username, body);
+      return postCommentToDatabase(
+        req.params.article_id,
+        req.body.username,
+        req.body.body
+      );
     })
     .then((insertedComment) => {
       res.status(201).send(insertedComment);
@@ -74,7 +69,7 @@ const postComment = (req, res, next) => {
       if (err.status && err.msg) {
         res.status(err.status).send({ msg: err.msg });
       } else {
-        res.status(500).send({ msg: "Internal Server Error" });
+        res.status(400).send({ msg: "Invalid article ID" });
       }
     });
 };

@@ -8,14 +8,6 @@ const fetchTopicsFromDatabase = () => {
   });
 };
 
-const checkArticleExists = (article_id) => {
-  return db
-    .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
-    .then((result) => {
-      return result.rows.length > 0;
-    });
-};
-
 const checkUsernameExists = (username) => {
   return users.some((user) => user.username === username);
 };
@@ -121,7 +113,6 @@ module.exports = {
   fetchAllArticlesFromDataBase,
   fetchCommentsFromDatabase,
   postCommentToDatabase,
-  checkArticleExists,
   checkUsernameExists,
   updateArticleVotes,
 };
