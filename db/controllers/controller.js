@@ -13,10 +13,15 @@ const getTopics = (req, res, next) => {
 };
 
 const getComments = (req, res, next) => {
-  const articleId = req.params.article_id; // Correctly access article_id from req.params
-
-  fetchCommentsFromDatabase(articleId).then((comments) => {
-    res.status(200).send(comments);
+  const articleId = req.params.article_id;
+  fetchArticleFromDatabase(articleId).then((article) => {
+    if (article) {
+      return fetchCommentsFromDatabase(articleId).then((comments) => {
+        res.status(200).send(comments);
+      });
+    } else {
+      res.status(404).send({ msg: "Article not found" });
+    }
   });
 };
 
@@ -39,4 +44,9 @@ const getArticle = (req, res) => {
   });
 };
 
-module.exports = { getTopics, getArticle, getAllArticles, getComments };
+module.exports = {
+  getTopics,
+  getArticle,
+  getAllArticles,
+  getComments,
+};

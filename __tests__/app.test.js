@@ -1,10 +1,10 @@
 const app = require("../db/app");
 const data = require("../db/data/test-data/index");
+const endpoints = require("../endpoints.json");
 const db = require("../db/connection");
 const request = require("supertest");
-const endpoints = require("../endpoints.json");
 const seed = require("../db/seeds/seed");
-require("jest-sorted");
+const toBeSortedBy = require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -15,7 +15,7 @@ afterAll(() => {
 });
 
 describe("GET api/topics/", () => {
-  test("should respond with 200 OK and array of topics", () => {
+  test("200 - should respond with 200 OK and array of topics", () => {
     return request(app)
       .get("/api/topics/")
       .then((response) => {
@@ -32,7 +32,7 @@ describe("GET api/topics/", () => {
 });
 
 describe("Bad URL pathways", () => {
-  test("should respond with 404 error for invalid pathway", () => {
+  test("404 - should respond with 404 error for invalid pathway", () => {
     return request(app)
       .get("/api/topicsssss/")
       .then((response) => {
@@ -43,72 +43,19 @@ describe("Bad URL pathways", () => {
 });
 
 describe("GET /api", () => {
-  test("should return a JSON representation of all available endpoints", () => {
+  test("200 - should return a JSON representation of all available endpoints and match data", () => {
     return request(app)
       .get("/api")
       .then((response) => {
         expect(response.status).toBe(200);
-        const apiEndpoints = response.body.endpoints;
-
-        Object.values(apiEndpoints).forEach((endpoint) => {
-          expect(endpoint.description).toEqual(expect.any(String));
-
-          if (endpoint.hasOwnProperty("queries")) {
-            expect(endpoint.queries).toEqual(expect.any(Array));
-          }
-
-          if (
-            endpoint.description.includes("Serves an array of all articles")
-          ) {
-            expect(endpoint.queries).toEqual(
-              expect.arrayContaining(["author", "topic", "sort_by", "order"])
-            );
-          } else if (
-            endpoint.description.includes("Serves an array of all topics")
-          ) {
-            expect(endpoint.queries).toEqual(expect.arrayContaining([]));
-          } else if (
-            endpoint.description.includes("Gets an article by its ID")
-          ) {
-            expect(endpoint.exampleResponse).toEqual(
-              expect.arrayContaining([
-                expect.objectContaining({
-                  article_id: expect.any(Number),
-                  title: expect.any(String),
-                  topic: expect.any(String),
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  created_at: expect.any(String),
-                  votes: expect.any(String),
-                  article_img_url: expect.any(String),
-                }),
-              ])
-            );
-          } else if (
-            endpoint.description.includes("Gets all comments from an article")
-          ) {
-            expect(endpoint.exampleResponse).toEqual(
-              expect.arrayContaining([
-                expect.objectContaining({
-                  comment_id: expect.any(Number),
-                  votes: expect.any(Number),
-                  created_at: expect.any(String),
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  article_id: expect.any(Number),
-                }),
-              ])
-            );
-          }
-        });
+        expect(response.body.endpoints).toEqual(endpoints);
       });
   });
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("should respond with 200 OK and an article object for a valid ID", () => {
+  test("200 - should respond with 200 OK and an article object for a valid ID", () => {
     const testArticleId = 2;
-
     return request(app)
       .get(`/api/articles/${testArticleId}`)
       .then((response) => {
@@ -126,8 +73,7 @@ describe("GET /api/articles/:article_id", () => {
         });
       });
   });
-
-  test("should respond with 404 Not Found for a non-existing article ID", () => {
+  test("404 - should respond with 404 Not Found for a non-existing article ID", () => {
     const fakeID = 100;
     return request(app)
       .get(`/api/articles/${fakeID}`)
@@ -138,13 +84,14 @@ describe("GET /api/articles/:article_id", () => {
   });
 
   describe("Get /api/articles/:article_id/comments", () => {
-    test("Get comments by article id", () => {
+    test("200 - Get comments by article id", () => {
       const testArticleId = 1;
       return request(app)
         .get(`/api/articles/${testArticleId}/comments`)
         .then((response) => {
           expect(200);
           expect(Array.isArray(response.body)).toBe(true);
+          expect(response.body.length).toBeGreaterThan(0);
           response.body.forEach((comment) => {
             expect(comment).toMatchObject({
               comment_id: expect.any(Number),
@@ -157,35 +104,39 @@ describe("GET /api/articles/:article_id", () => {
           });
         });
     });
-    test("Comments should be sorted by newest first based on the created_at property", () => {
+    test("200 - Comments should be sorted by newest first based on the created_at property", () => {
       const testArticleId = 6;
       return request(app)
         .get(`/api/articles/${testArticleId}/comments`)
         .then((response) => {
           const retrievedComments = response.body;
-
           expect(200);
-          for (let i = 1; i < retrievedComments.length; i++) {
-            expect(
-              retrievedComments[i].created_at.toBeLessThanOrEqual(
-                retrievedComments[i - 1].created_at
-              )
-            );
-          }
-        });
-      test("Get comments for non-existent article id", () => {
-        const nonExistentArticleId = 13;
-        return request(app)
-          .get(`/api/articles/${nonExistentArticleId}/comments`)
-          .then((response) => {
-            expect(response.status).toBe(404);
-            expect(response.body).toEqual({ error: "Article not found" });
+          expect(retrievedComments).toBeSortedBy("created_at", {
+            descending: true,
           });
-      });
+        });
+    });
+    test("200 - valid article with no comments", () => {
+      const validArticleId = 2;
+      return request(app)
+        .get(`/api/articles/${validArticleId}/comments`)
+        .then((response) => {
+          expect(response.status).toBe(200);
+          expect(response.body).toEqual({});
+        });
+    });
+    test("404 - Get comments with invalid numeric ID", () => {
+      const invalidArticleId = 12345;
+      return request(app)
+        .get(`/api/articles/${invalidArticleId}/comments`)
+        .then((response) => {
+          expect(response.status).toBe(404);
+          expect(response.body).toEqual({ msg: "Article not found" });
+        });
     });
 
     describe("Get /api/articles", () => {
-      test("Get ALL ARTICLES sorted by created by", () => {
+      test("200 - Get ALL ARTICLES sorted by created by", () => {
         return request(app)
           .get("/api/articles/")
           .then((response) => {
@@ -203,10 +154,11 @@ describe("GET /api/articles/:article_id", () => {
             }
           });
       });
-      test("Articles should have a comment count property", () => {
+      test("200 - Articles should have a comment count property", () => {
         return request(app)
           .get("/api/articles/")
           .then((response) => {
+            expect(200);
             const retrievedArticles = response.body;
             retrievedArticles.forEach((article) => {
               expect(article).toHaveProperty("comment_count");
@@ -218,8 +170,7 @@ describe("GET /api/articles/:article_id", () => {
             });
           });
       });
-
-      test("Articles should NOT have a 'body' property once returned", () => {
+      test("200 - Articles should NOT have a 'body' property once returned", () => {
         return request(app)
           .get("/api/articles/")
           .then((response) => {
