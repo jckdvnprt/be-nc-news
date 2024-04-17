@@ -121,8 +121,8 @@ describe("GET /api/articles/:article_id", () => {
       return request(app)
         .get(`/api/articles/${validArticleId}/comments`)
         .then((response) => {
-          expect(response.status).toBe(200);
-          expect(response.body).toEqual({});
+          expect(200);
+          expect(response.body).toEqual([]);
         });
     });
     test("404 - Get comments with invalid numeric ID", () => {
@@ -182,5 +182,111 @@ describe("GET /api/articles/:article_id", () => {
           });
       });
     });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201 - should respond with 201 Created and the newly posted comment", () => {
+    const testArticleId = 1;
+    const newComment = {
+      username: "rogersop",
+      body: "This is my very fancy test comment.",
+    };
+
+    return request(app)
+      .post(`/api/articles/${testArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("comment_id");
+        expect(response.body).toHaveProperty("votes");
+        expect(response.body).toHaveProperty("created_at");
+        expect(response.body).toHaveProperty("author", newComment.username);
+        expect(response.body).toHaveProperty("body", newComment.body);
+        expect(response.body).toHaveProperty("article_id", testArticleId);
+      });
+  });
+
+  test("400 - should respond with 400 Bad Request for missing username", () => {
+    const testArticleId = 1;
+    const newComment = {
+      body: "This is a comment without a username, how very sad.",
+    };
+
+    return request(app)
+      .post(`/api/articles/${testArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          msg: "Username and body are required",
+        });
+      });
+  });
+
+  test("400 - should respond with 400 Bad Request for missing body", () => {
+    const testArticleId = 1;
+    const newComment = {
+      username: "lurker",
+    };
+    return request(app)
+      .post(`/api/articles/${testArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          msg: "Username and body are required",
+        });
+      });
+  });
+
+  test("400 - should respond with 400 Bad Request for invalid username", () => {
+    const testArticleId = 1;
+    const newComment = {
+      username: "jckdvnprt",
+      body: "This is my very fancy test comment.",
+    };
+
+    return request(app)
+      .post(`/api/articles/${testArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          msg: "Invalid username",
+        });
+      });
+  });
+
+  test("404 - should respond with 404 Not Found for non-existing article ID", () => {
+    const invalidArticleId = 123456789;
+    const newComment = {
+      username: "lurker",
+      body: "Test comment that won't be posted anyway because of the error! Oops!",
+    };
+
+    return request(app)
+      .post(`/api/articles/${invalidArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({ msg: "Article not found" });
+      });
+  });
+
+  test("500 - should respond with 500 Internal Server Error for database error", () => {
+    const invalidArticleId = "invalid-article-id";
+    const newComment = {
+      username: "rogersop",
+      body: "This comment won't be posted because of the invalid article ID *sad face emoji*.",
+    };
+
+    return request(app)
+      .post(`/api/articles/${invalidArticleId}/comments`)
+      .send(newComment)
+      .then((response) => {
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ msg: "Internal Server Error" });
+      });
   });
 });

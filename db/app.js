@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+app.use(express.json());
 const {
   getTopics,
   getArticle,
@@ -17,6 +18,8 @@ app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles/", getAllArticles);
 app.get("/api/topics/", getTopics);
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
