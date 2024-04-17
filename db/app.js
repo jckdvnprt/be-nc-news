@@ -5,6 +5,7 @@ const {
   getArticle,
   getAllArticles,
   getComments,
+  postComment,
 } = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
 
