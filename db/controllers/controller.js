@@ -7,7 +7,30 @@ const {
   postCommentToDatabase,
   checkArticleExists,
   checkUsernameExists,
+  updateArticleVotes,
 } = require("../models/model");
+
+const patchArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).send({ msg: "Request body cannot be empty" });
+  }
+  if (!Number.isInteger(inc_votes)) {
+    return res.status(400).send({ msg: "inc_votes must be an integer" });
+  }
+  fetchArticleFromDatabase(article_id)
+    .then((article) => {
+      if (!article) {
+        return res.status(404).send({ msg: "Article not found" });
+      }
+      return updateArticleVotes(article_id, inc_votes);
+    })
+    .then((updatedArticle) => {
+      res.status(200).send(updatedArticle);
+    })
+    .catch(next);
+};
 
 const getTopics = (req, res, next) => {
   fetchTopicsFromDatabase().then((topics) => {
@@ -93,4 +116,5 @@ module.exports = {
   getAllArticles,
   getComments,
   postComment,
+  patchArticle,
 };

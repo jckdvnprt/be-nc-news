@@ -1,4 +1,5 @@
 const db = require("../connection");
+const { articleData } = require("../data/test-data");
 const users = require("../data/test-data/users");
 
 const fetchTopicsFromDatabase = () => {
@@ -17,6 +18,17 @@ const checkArticleExists = (article_id) => {
 
 const checkUsernameExists = (username) => {
   return users.some((user) => user.username === username);
+};
+
+const updateArticleVotes = (article_id, inc_votes) => {
+  return db
+    .query(
+      "UPDATE articles SET votes = Votes+$1 WHERE article_id = $2 RETURNING *;",
+      [inc_votes, article_id]
+    )
+    .then((result) => {
+      return result.rows[0];
+    });
 };
 
 const postCommentToDatabase = (article_id, author, body) => {
@@ -41,6 +53,9 @@ function fetchAllArticlesFromDataBase() {
     )
     .then((queryResult) => {
       const articles = queryResult.rows;
+      if (articles.length === 0) {
+        throw { status: 404, msg: "No articles found" };
+      }
       const promises = articles.map((article) => {
         const articleId = article.article_id;
         return getCommentCountForArticle(articleId).then((commentCount) => {
@@ -49,6 +64,14 @@ function fetchAllArticlesFromDataBase() {
         });
       });
       return Promise.all(promises);
+    })
+    .catch((error) => {
+      console.error(error);
+      if (error.status && error.msg) {
+        throw error;
+      } else {
+        throw new Error("Error fetching articles from the database");
+      }
     });
 }
 
@@ -100,4 +123,5 @@ module.exports = {
   postCommentToDatabase,
   checkArticleExists,
   checkUsernameExists,
+  updateArticleVotes,
 };
