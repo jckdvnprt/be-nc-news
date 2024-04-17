@@ -1,8 +1,48 @@
 const db = require("../connection");
+const { articleData } = require("../data/test-data");
+const users = require("../data/test-data/users");
 
 const fetchTopicsFromDatabase = () => {
   return db.query("SELECT * FROM topics;").then((queryResult) => {
     return queryResult.rows;
+  });
+};
+
+const checkArticleExists = (article_id) => {
+  return db
+    .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
+    .then((result) => {
+      return result.rows.length > 0;
+    });
+};
+
+const checkUsernameExists = (username) => {
+  return users.some((user) => user.username === username);
+};
+
+const updateArticleVotes = (article_id, inc_votes) => {
+  return db
+    .query(
+      "UPDATE articles SET votes = Votes+$1 WHERE article_id = $2 RETURNING *;",
+      [inc_votes, article_id]
+    )
+    .then((result) => {
+      return result.rows[0];
+    });
+};
+
+const postCommentToDatabase = (article_id, author, body) => {
+  return fetchArticleFromDatabase(article_id).then((article) => {
+    if (!article) {
+      return { msg: "Article not found" };
+    }
+    const insertCommentQuery = {
+      text: "INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;",
+      values: [article_id, author, body],
+    };
+    return db
+      .query(insertCommentQuery)
+      .then((insertedComment) => insertedComment.rows[0]);
   });
 };
 
@@ -13,6 +53,9 @@ function fetchAllArticlesFromDataBase() {
     )
     .then((queryResult) => {
       const articles = queryResult.rows;
+      if (articles.length === 0) {
+        throw { status: 404, msg: "No articles found" };
+      }
       const promises = articles.map((article) => {
         const articleId = article.article_id;
         return getCommentCountForArticle(articleId).then((commentCount) => {
@@ -21,6 +64,14 @@ function fetchAllArticlesFromDataBase() {
         });
       });
       return Promise.all(promises);
+    })
+    .catch((error) => {
+      console.error(error);
+      if (error.status && error.msg) {
+        throw error;
+      } else {
+        throw new Error("Error fetching articles from the database");
+      }
     });
 }
 
@@ -56,12 +107,11 @@ function fetchCommentsFromDatabase(articleId) {
       [articleId]
     )
     .then((queryResult) => {
-      if (queryResult.rows.length > 0) {
-        return queryResult.rows;
-      } else {
-        console.log("No article found with articleId:", articleId);
-        return null;
-      }
+      return queryResult.rows || [];
+    })
+    .catch((err) => {
+      console.error("Error fetching comments:", err);
+      throw err;
     });
 }
 
@@ -70,4 +120,8 @@ module.exports = {
   fetchArticleFromDatabase,
   fetchAllArticlesFromDataBase,
   fetchCommentsFromDatabase,
+  postCommentToDatabase,
+  checkArticleExists,
+  checkUsernameExists,
+  updateArticleVotes,
 };
