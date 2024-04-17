@@ -197,7 +197,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${testArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(201);
+        expect(201);
         expect(response.body).toHaveProperty("comment_id");
         expect(response.body).toHaveProperty("votes");
         expect(response.body).toHaveProperty("created_at");
@@ -217,7 +217,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${testArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(400);
+        expect(400);
         expect(response.body).toEqual({
           msg: "Username and body are required",
         });
@@ -233,7 +233,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${testArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(400);
+        expect(400);
         expect(response.body).toEqual({
           msg: "Username and body are required",
         });
@@ -251,7 +251,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${testArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(400);
+        expect(400);
         expect(response.body).toEqual({
           msg: "Invalid username",
         });
@@ -269,7 +269,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${invalidArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(404);
+        expect(404);
         expect(response.body).toEqual({ msg: "Article not found" });
       });
   });
@@ -285,7 +285,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post(`/api/articles/${invalidArticleId}/comments`)
       .send(newComment)
       .then((response) => {
-        expect(response.status).toBe(500);
+        expect(500);
         expect(response.body).toEqual({ msg: "Internal Server Error" });
       });
   });

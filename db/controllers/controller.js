@@ -1,5 +1,4 @@
 const db = require("../connection");
-const users = require("../data/test-data/users");
 const {
   fetchArticleFromDatabase,
   fetchTopicsFromDatabase,
