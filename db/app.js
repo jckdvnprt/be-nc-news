@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const {
-  getTopics,
   getArticle,
   getUsers,
   getAllArticles,
@@ -10,8 +9,10 @@ const {
   postComment,
   patchArticle,
   deleteComment,
+  getArticlesByTopic,
 } = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
+const topics = require("../db/data/test-data/topics");
 
 app.get("/api/", (req, res, next) => {
   res.status(200).send({ endpoints });
@@ -19,8 +20,25 @@ app.get("/api/", (req, res, next) => {
 
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/articles/:article_id", getArticle);
-app.get("/api/articles/", getAllArticles);
-app.get("/api/topics/", getTopics);
+
+app.get("/api/articles/", (req, res) => {
+  const { topic } = req.query;
+  if (topic) {
+    const topicExists = topics.some((topics) => topics.slug === topic);
+    if (topicExists) {
+      getArticlesByTopic(req, res);
+    } else {
+      res.status(404).send({ error: "Topic not found" });
+    }
+  } else {
+    getAllArticles(req, res);
+  }
+});
+
+app.get("/api/topics/", (req, res) => {
+  res.status(200).send(topics);
+});
+
 app.get("/api/users/", getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);

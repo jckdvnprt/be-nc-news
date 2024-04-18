@@ -9,7 +9,15 @@ const {
   updateArticleVotes,
   deleteCommentFromDatabase,
   fetchAllUsersFromDatabase,
+  fetchArticlesByTopic,
 } = require("../models/model");
+
+const getArticlesByTopic = (req, res, next) => {
+  const { topic } = req.query;
+  fetchArticlesByTopic(topic).then((articles) => {
+    res.status(200).send(articles);
+  });
+};
 
 const getUsers = (req, res) => {
   fetchAllUsersFromDatabase().then((users) => {
@@ -136,6 +144,7 @@ module.exports = {
   getTopics,
   getArticle,
   getUsers,
+  getArticlesByTopic,
   getAllArticles,
   getComments,
   postComment,

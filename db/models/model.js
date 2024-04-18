@@ -31,6 +31,14 @@ const updateArticleVotes = (article_id, inc_votes) => {
     });
 };
 
+const fetchArticlesByTopic = (topic) => {
+  return db
+    .query("SELECT * FROM articles WHERE topic = $1;", [topic])
+    .then((queryResult) => {
+      return queryResult.rows;
+    });
+};
+
 const postCommentToDatabase = (article_id, author, body) => {
   return fetchArticleFromDatabase(article_id).then((article) => {
     if (!article) {
@@ -138,4 +146,5 @@ module.exports = {
   fetchCommentsFromDatabase,
   postCommentToDatabase,
   updateArticleVotes,
+  fetchArticlesByTopic,
 };

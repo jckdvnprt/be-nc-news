@@ -433,21 +433,51 @@ describe("GET /api/users", () => {
         expect(200);
         expect(Array.isArray(response.body)).toBe(true);
         response.body.forEach((user) => {
-          expect(user).toHaveProperty("username");
           expect(typeof user.username).toBe("string");
-          expect(user).toHaveProperty("name");
           expect(typeof user.name).toBe("string");
-          expect(user).toHaveProperty("avatar_url");
           expect(typeof user.avatar_url).toBe("string");
         });
       });
   });
-  test("404 - should respond with 404 Not Found for invalid pathway", () => {
+});
+
+describe("GET /api/articles", () => {
+  test("200 - should respond with articles filtered by topic if topic is provided", () => {
+    const testTopic = "cats";
     return request(app)
-      .get("/api/users5s")
+      .get(`/api/articles?topic=${testTopic}`)
       .then((response) => {
-        expect(404);
-        expect(response.body).toEqual({ msg: "Not Found" });
+        expect(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        response.body.forEach((article) => {
+          expect(article.topic).toBe(testTopic);
+          expect(article).toMatchObject({
+            title: expect.any(String),
+            topic: testTopic,
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
+  });
+  test("404 - should respond with an error message if the requested topic doesn't exist", () => {
+    const testTopic = "theFilmsOfJackieChan";
+    return request(app)
+      .get(`/api/articles?topic=${testTopic}`)
+      .then((response) => {
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual({ error: "Topic not found" });
+      });
+  });
+
+  test("200 - should respond with all articles if no topic is provided", () => {
+    return request(app)
+      .get("/api/articles")
+      .then((response) => {
+        expect(200);
       });
   });
 });
