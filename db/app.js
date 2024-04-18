@@ -4,6 +4,7 @@ app.use(express.json());
 const {
   getTopics,
   getArticle,
+  getUsers,
   getAllArticles,
   getComments,
   postComment,
@@ -20,6 +21,7 @@ app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles/", getAllArticles);
 app.get("/api/topics/", getTopics);
+app.get("/api/users/", getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);

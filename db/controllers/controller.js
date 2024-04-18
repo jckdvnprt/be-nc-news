@@ -8,7 +8,19 @@ const {
   checkUsernameExists,
   updateArticleVotes,
   deleteCommentFromDatabase,
+  fetchAllUsersFromDatabase,
 } = require("../models/model");
+
+const getUsers = (req, res) => {
+  fetchAllUsersFromDatabase()
+    .then((users) => {
+      res.status(200).send(users);
+    })
+    .catch((error) => {
+      console.error("Error getting users:", error);
+      res.status(500).send({ msg: "Internal server error" });
+    });
+};
 
 const deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
@@ -128,6 +140,7 @@ const getArticle = (req, res) => {
 module.exports = {
   getTopics,
   getArticle,
+  getUsers,
   getAllArticles,
   getComments,
   postComment,

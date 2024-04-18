@@ -30,51 +30,59 @@
   },
   "GET /api/articles/:article_id": {
     "description": "Gets an article by its ID.",
-    "exampleResponse": [{
-      "article_id": 1,
-      "title": "Living in the shadow of a great man",
-      "topic": "mitch",
-      "author": "butter_bridge",
-      "body": "I find this existence challenging",
-      "created_at": "2020-07-09T20:11:00.000Z",
-      "votes": "100",
-      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-    }]
+    "exampleResponse": [
+      {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": "100",
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    ]
   },
   "GET /api/articles/:article_id/comments": {
     "description": "Gets all comments from an article",
-    "exampleResponse": [{
-      "comment_id": 6,
-    "votes": 0,
-    "created_at": "2020-04-11T21:02:00.000Z",
-    "author": "icellusedkars",
-    "body": "I hate streaming eyes even more",
-    "article_id": 1}]
+    "exampleResponse": [
+      {
+        "comment_id": 6,
+        "votes": 0,
+        "created_at": "2020-04-11T21:02:00.000Z",
+        "author": "icellusedkars",
+        "body": "I hate streaming eyes even more",
+        "article_id": 1
+      }
+    ]
   },
   "POST /api/articles/:article_id/comments": {
     "description": "Posts a new comment to an article",
-    "exampleRequest": [{
+    "exampleRequest": [
+      {
         "comment_id": 19,
         "body": "This is my very fancy test comment.",
         "article_id": 1,
         "author": "rogersop",
         "votes": 0,
         "created_at": "2024-04-17T10:09:42.853Z"
-      
-    }]
+      }
+    ]
   },
-  "PATCH /api/articles/:article_id/comments": 
-    { "description": "Updated comment votes",
-    "exampleResponse": [{
-      "article_id": 1,
-      "title": "Living in the shadow of a great man",
-      "topic": "mitch",
-      "author": "butter_bridge",
-      "body": "I find this existence challenging",
-      "created_at": "2020-07-09T20:11:00.000Z",
-      "votes": 300,
-      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-    }]
+  "PATCH /api/articles/:article_id/comments": {
+    "description": "Updated comment votes",
+    "exampleResponse": [
+      {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": 300,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    ]
   },
   "DELETE /api/comments/:comment_id": {
     "description": "Deletes comments based on ID",
@@ -82,6 +90,27 @@
       "message": "Comment deleted successfully",
       "body": {}
     }
-  }}
-  
-
+  },
+  "GET /api/users/": [
+    {
+      "username": "butter_bridge",
+      "name": "jonny",
+      "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+    },
+    {
+      "username": "icellusedkars",
+      "name": "sam",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+    },
+    {
+      "username": "rogersop",
+      "name": "paul",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+    },
+    {
+      "username": "lurker",
+      "name": "do_nothing",
+      "avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+    }
+  ]
+}
