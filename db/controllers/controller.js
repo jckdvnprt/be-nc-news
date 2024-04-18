@@ -12,14 +12,9 @@ const {
 } = require("../models/model");
 
 const getUsers = (req, res) => {
-  fetchAllUsersFromDatabase()
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch((error) => {
-      console.error("Error getting users:", error);
-      res.status(500).send({ msg: "Internal server error" });
-    });
+  fetchAllUsersFromDatabase().then((users) => {
+    res.status(200).send(users);
+  });
 };
 
 const deleteComment = (req, res, next) => {

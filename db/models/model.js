@@ -13,9 +13,6 @@ const fetchAllUsersFromDatabase = () => {
     .query("SELECT username, name, avatar_url FROM users;")
     .then((queryResult) => {
       return queryResult.rows;
-    })
-    .catch((error) => {
-      throw error;
     });
 };
 
@@ -128,10 +125,6 @@ function deleteCommentFromDatabase(comment_id) {
         throw error;
       }
       return { msg: "Comment deleted successfully" };
-    })
-    .catch((err) => {
-      console.error("Error deleting comment:", err);
-      throw err;
     });
 }
 
