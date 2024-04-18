@@ -107,11 +107,29 @@ function fetchCommentsFromDatabase(articleId) {
     });
 }
 
+function deleteCommentFromDatabase(comment_id) {
+  return db
+    .query("DELETE FROM comments WHERE comment_id=$1", [comment_id])
+    .then((result) => {
+      if (result.rowCount === 0) {
+        const error = new Error("Comment not found");
+        error.status = 404;
+        throw error;
+      }
+      return { msg: "Comment deleted successfully" };
+    })
+    .catch((err) => {
+      console.error("Error deleting comment:", err);
+      throw err;
+    });
+}
+
 module.exports = {
   fetchTopicsFromDatabase,
   fetchArticleFromDatabase,
   fetchAllArticlesFromDataBase,
   fetchCommentsFromDatabase,
+  deleteCommentFromDatabase,
   postCommentToDatabase,
   checkUsernameExists,
   updateArticleVotes,

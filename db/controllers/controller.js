@@ -7,7 +7,27 @@ const {
   postCommentToDatabase,
   checkUsernameExists,
   updateArticleVotes,
+  deleteCommentFromDatabase,
 } = require("../models/model");
+
+const deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  deleteCommentFromDatabase(comment_id)
+    .then(() => {
+      res.status(204).send({});
+    })
+    .catch((error) => {
+      if (error.status === 404) {
+        return res.status(404).send({ msg: "Comment not found" });
+      }
+      if (error.status === 400) {
+        return res
+          .status(400)
+          .send({ msg: "400! Bad Request - Invalid Comment ID" });
+      }
+      next(error);
+    });
+};
 
 const patchArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -112,4 +132,5 @@ module.exports = {
   getComments,
   postComment,
   patchArticle,
+  deleteComment,
 };
