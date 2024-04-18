@@ -100,7 +100,11 @@ function fetchArticleFromDatabase(articleId) {
     .query("SELECT * FROM articles WHERE article_id=$1;", [articleId])
     .then((queryResult) => {
       if (queryResult.rows.length > 0) {
-        return queryResult.rows;
+        const article = queryResult.rows[0];
+        return getCommentCountForArticle(articleId).then((commentCount) => {
+          article.comment_count = parseInt(commentCount);
+          return article;
+        });
       } else {
         console.log("No article found with articleId:", articleId);
         return null;

@@ -481,3 +481,26 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id", () => {
+  test("200 - should respond with 200 OK for a SINGLE article object for a valid ID with comment_count included", () => {
+    const testArticleId = 5;
+    return request(app)
+      .get(`/api/articles/${testArticleId}`)
+      .then((response) => {
+        const article = response.body;
+        expect(200);
+        expect(article).toMatchObject({
+          article_id: testArticleId,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+});
