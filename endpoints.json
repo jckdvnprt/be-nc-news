@@ -64,7 +64,8 @@
     }]
   },
   "PATCH /api/articles/:article_id/comments": 
-    {
+    { "description": "Updated comment votes",
+    "exampleResponse": [{
       "article_id": 1,
       "title": "Living in the shadow of a great man",
       "topic": "mitch",
@@ -73,7 +74,14 @@
       "created_at": "2020-07-09T20:11:00.000Z",
       "votes": 300,
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-    
-  }
+    }]
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes comments based on ID",
+    "exampleResponse": {
+      "message": "Comment deleted successfully",
+      "body": {}
+    }
+  }}
   
-}
+
