@@ -8,7 +8,14 @@ const {
   checkUsernameExists,
   updateArticleVotes,
   deleteCommentFromDatabase,
+  fetchAllUsersFromDatabase,
 } = require("../models/model");
+
+const getUsers = (req, res) => {
+  fetchAllUsersFromDatabase().then((users) => {
+    res.status(200).send(users);
+  });
+};
 
 const deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
@@ -128,6 +135,7 @@ const getArticle = (req, res) => {
 module.exports = {
   getTopics,
   getArticle,
+  getUsers,
   getAllArticles,
   getComments,
   postComment,

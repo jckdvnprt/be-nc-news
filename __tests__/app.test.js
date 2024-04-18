@@ -424,3 +424,30 @@ describe("POST /api/articles/:article_id/comments", () => {
     });
   });
 });
+
+describe("GET /api/users", () => {
+  test("200 - should respond with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .then((response) => {
+        expect(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        response.body.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(typeof user.username).toBe("string");
+          expect(user).toHaveProperty("name");
+          expect(typeof user.name).toBe("string");
+          expect(user).toHaveProperty("avatar_url");
+          expect(typeof user.avatar_url).toBe("string");
+        });
+      });
+  });
+  test("404 - should respond with 404 Not Found for invalid pathway", () => {
+    return request(app)
+      .get("/api/users5s")
+      .then((response) => {
+        expect(404);
+        expect(response.body).toEqual({ msg: "Not Found" });
+      });
+  });
+});

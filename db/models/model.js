@@ -8,6 +8,14 @@ const fetchTopicsFromDatabase = () => {
   });
 };
 
+const fetchAllUsersFromDatabase = () => {
+  return db
+    .query("SELECT username, name, avatar_url FROM users;")
+    .then((queryResult) => {
+      return queryResult.rows;
+    });
+};
+
 const checkUsernameExists = (username) => {
   return users.some((user) => user.username === username);
 };
@@ -117,20 +125,17 @@ function deleteCommentFromDatabase(comment_id) {
         throw error;
       }
       return { msg: "Comment deleted successfully" };
-    })
-    .catch((err) => {
-      console.error("Error deleting comment:", err);
-      throw err;
     });
 }
 
 module.exports = {
+  checkUsernameExists,
+  deleteCommentFromDatabase,
   fetchTopicsFromDatabase,
   fetchArticleFromDatabase,
   fetchAllArticlesFromDataBase,
+  fetchAllUsersFromDatabase,
   fetchCommentsFromDatabase,
-  deleteCommentFromDatabase,
   postCommentToDatabase,
-  checkUsernameExists,
   updateArticleVotes,
 };
