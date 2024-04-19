@@ -132,7 +132,7 @@ const getArticle = (req, res) => {
   const articleId = req.params.article_id;
   fetchArticleFromDatabase(articleId).then((article) => {
     if (article) {
-      const articleToSend = article[0];
+      const articleToSend = article;
       res.status(200).send(articleToSend);
     } else {
       res.status(404).send({ msg: "Article not found" });
