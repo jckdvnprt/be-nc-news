@@ -13,7 +13,7 @@ const {
   getArticlesByTopic,
 } = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
-const topics = require("../db/data/test-data/topics");
+const topics = require("../db/data/development-data/topics");
 app.use(cors());
 app.get("/api/", (req, res, next) => {
   res.status(200).send({ endpoints });

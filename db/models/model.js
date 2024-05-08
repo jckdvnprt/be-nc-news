@@ -1,6 +1,6 @@
 const db = require("../connection");
 const { articleData } = require("../data/test-data");
-const users = require("../data/test-data/users");
+const users = require("../data/development-data/users");
 
 const fetchTopicsFromDatabase = () => {
   return db.query("SELECT * FROM topics;").then((queryResult) => {
