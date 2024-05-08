@@ -1,5 +1,4 @@
 const db = require("../connection");
-const { articleData } = require("../data/test-data");
 const users = require("../data/development-data/users");
 
 const fetchTopicsFromDatabase = () => {
