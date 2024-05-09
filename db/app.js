@@ -19,6 +19,7 @@ app.get("/api/", (req, res, next) => {
   res.status(200).send({ endpoints });
 });
 app.get("/api/articles/:article_id/comments", getComments);
+app.get("/api/articles/:article_id/comments/:comment_id", getComments);
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles/", (req, res) => {
   const { topic } = req.query;
