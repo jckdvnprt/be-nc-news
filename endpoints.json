@@ -91,6 +91,13 @@
       "body": {}
     }
   },
+  "DELETE /api/article/1/comments/:comment_id": {
+    "description": "Deletes comments based on ID",
+    "exampleResponse": {
+      "message": "Comment deleted successfully",
+      "body": {}
+    }
+  },
   "GET /api/users/": [
     {
       "username": "butter_bridge",
