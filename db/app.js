@@ -39,7 +39,7 @@ app.get("/api/topics/", (req, res) => {
 app.get("/api/users/", getUsers);
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
-app.delete("/api/article/:article_id/comments/comment_id");
+app.delete("/api/article/:article_id/comments/comment_id", deleteComment);
 app.delete("/api/comments/:comment_id", deleteComment);
 app.use((err, req, res, next) => {
   console.error(err);
