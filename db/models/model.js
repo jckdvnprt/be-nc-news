@@ -1,6 +1,5 @@
 const db = require("../connection");
 const users = require("../data/development-data/users");
-
 const fetchTopicsFromDatabase = () => {
   return db.query("SELECT * FROM topics;").then((queryResult) => {
     return queryResult.rows;
@@ -126,6 +125,12 @@ function fetchCommentsFromDatabase(articleId) {
     });
 }
 
+function fetchCommentById(commentId) {
+  return db
+    .query("SELECT * FROM comments WHERE comment_id = $1", [commentId])
+    .then((queryResult) => queryResult.rows[0] || null);
+}
+
 function deleteCommentFromDatabase(comment_id) {
   return db
     .query("DELETE FROM comments WHERE comment_id=$1", [comment_id])
@@ -150,4 +155,5 @@ module.exports = {
   postCommentToDatabase,
   updateArticleVotes,
   fetchArticlesByTopic,
+  fetchCommentById,
 };

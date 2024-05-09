@@ -11,6 +11,7 @@ const {
   patchArticle,
   deleteComment,
   getArticlesByTopic,
+  getSingleComment,
 } = require("./controllers/controller");
 const endpoints = require("../endpoints.json");
 const topics = require("../db/data/development-data/topics");
@@ -19,7 +20,9 @@ app.get("/api/", (req, res, next) => {
   res.status(200).send({ endpoints });
 });
 app.get("/api/articles/:article_id/comments", getComments);
-app.get("/api/articles/:article_id/comments/:comment_id", getComments);
+app.get("/api/articles/:article_id/comments/:comment_id", getSingleComment);
+app.get("/api/comments/:comment_id", getSingleComment);
+
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles/", (req, res) => {
   const { topic } = req.query;

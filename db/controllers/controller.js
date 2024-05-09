@@ -10,7 +10,21 @@ const {
   deleteCommentFromDatabase,
   fetchAllUsersFromDatabase,
   fetchArticlesByTopic,
+  fetchCommentById,
 } = require("../models/model");
+
+const getSingleComment = (req, res, next) => {
+  const commentId = req.params.comment_id;
+  fetchCommentById(commentId)
+    .then((comment) => {
+      if (comment) {
+        res.status(200).send(comment);
+      } else {
+        res.status(404).send({ msg: "Comment not found" });
+      }
+    })
+    .catch((err) => next(err));
+};
 
 const getArticlesByTopic = (req, res, next) => {
   const { topic } = req.query;
@@ -150,4 +164,5 @@ module.exports = {
   postComment,
   patchArticle,
   deleteComment,
+  getSingleComment,
 };
