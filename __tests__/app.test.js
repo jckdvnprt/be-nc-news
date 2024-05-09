@@ -394,7 +394,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
     });
 
-    describe("DELETE /api/comments/:comment_id", () => {
+    describe.only("DELETE /api/comments/:comment_id", () => {
       test("204 - should respond with 204 No Content for successful deletion", () => {
         const commentIdToDelete = 1;
         return request(app)
@@ -442,7 +442,7 @@ describe("GET /api/users", () => {
 });
 
 describe("GET /api/articles", () => {
-  test.only("200 - should respond with articles filtered by topic if topic is provided", () => {
+  test("200 - should respond with articles filtered by topic if topic is provided", () => {
     const testTopic = "coding";
     return request(app)
       .get(`/api/articles?topic=${testTopic}`)
